@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Setup</title>
+    <style>
+      body {margin: 20px; background-color: silver;}
+      .frame {width: 350px; padding: 25px; margin-left: auto; margin-right: auto; margin-top: 200px; background-color: darkgray;}
+      .table {width: 100%;}
+      .title {float: left; width: 100px; margin-bottom: 20px; text-align: right;}
+      .input {float: left; width: 200px; margin-bottom: 20px;}
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body onload="onload()">
+    <div class="frame">
+      <form>
+        <table class="table">
+          <tr>
+            <td>
+              <span class="title">SSID</span>
+            </td>
+            <td>
+              <select name="ssid" id="ssid" class="input" onkeydown="onkey()">
+              </select> 
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="title">Password</span>
+            </td>
+            <td>
+              <input name="password" id="password" type="password" class="input" onkeydown="onkey(event)" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+            </td>
+            <td>
+              <input type="button" value="Join" onclick="join()" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+    <script>
+      function onload() {
+        var select = document.getElementById('ssid');
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var lines = xmlhttp.responseText.split('\n');
+            lines.forEach(function(line) {
+              var parts = line.split('\t');
+              if (parts.length == 2) {
+                var option = document.createElement('option');
+                option.value = parts[1];
+                option.innerHTML = parts[1];
+                select.appendChild(option);
+              }
+            });
+          }
+        };
+        xmlhttp.open('GET', '/wifi/list');
+        xmlhttp.send();
+      }
+      function onkey(event) {
+        if (event.keyCode == 13) {
+          event.preventDefault();
+          return false;
+        }
+      }
+      function join() {
+        var ssid = document.getElementById('ssid').value;
+        var password = document.getElementById('password').value;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open('POST', '/wifi/join');
+        xmlhttp.send(ssid + ';' + password + ';');
+      }
+    </script>
+  </body>
+</html>
